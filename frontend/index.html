@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Finder - Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-container {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Shop Finder API Tester</h1>
+    
+    <div class="form-container" id="roleSelection">
+        <h2>Select Your Role</h2>
+        <button onclick="showCustomerForms()">I'm a Customer</button>
+        <button onclick="showSellerForms()">I'm a Seller</button>
+    </div>
+
+    <div class="form-container" id="customerForms" style="display:none">
+        <h2>Customer Registration</h2>
+        <input type="email" id="custEmail" placeholder="Email">
+        <input type="password" id="custPassword" placeholder="Password">
+        <input type="text" id="custLocation" placeholder="Location">
+        <button onclick="registerCustomer()">Register Customer</button>
+        
+        <h2>Customer Login</h2>
+        <input type="email" id="custLoginEmail" placeholder="Email">
+        <input type="password" id="custLoginPassword" placeholder="Password">
+        <button onclick="customerLogin()">Login</button>
+    </div>
+
+    <div class="form-container" id="sellerForms" style="display:none">
+        <h2>Seller Registration</h2>
+        <input type="email" id="sellerEmail" placeholder="Email">
+        <input type="password" id="sellerPassword" placeholder="Password">
+        <input type="text" id="sellerName" placeholder="Name">
+        <input type="text" id="shopName" placeholder="Shop Name">
+        <input type="text" id="sellerLocation" placeholder="Location">
+        <input type="text" id="contactNumber" placeholder="Contact Number">
+        <button onclick="registerSeller()">Register Seller</button>
+        
+        <h2>Seller Login</h2>
+        <input type="email" id="sellerLoginEmail" placeholder="Email">
+        <input type="password" id="sellerLoginPassword" placeholder="Password">
+        <button onclick="sellerLogin()">Login</button>
+    </div>
+
+    <div id="response"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        const responseDiv = document.getElementById('response');
+
+        function showCustomerForms() {
+            document.getElementById('roleSelection').style.display = 'none';
+            document.getElementById('customerForms').style.display = 'block';
+        }
+
+        function showSellerForms() {
+            document.getElementById('roleSelection').style.display = 'none';
+            document.getElementById('sellerForms').style.display = 'block';
+        }
+
+        async function registerCustomer() {
+            const email = document.getElementById('custEmail').value;
+            const password = document.getElementById('custPassword').value;
+            const location = document.getElementById('custLocation').value;
+
+            const response = await fetch(`${API_BASE}/auth/register/customer`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password, location }),
+            });
+
+            const data = await response.json();
+            responseDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        async function registerSeller() {
+            const email = document.getElementById('sellerEmail').value;
+            const password = document.getElementById('sellerPassword').value;
+            const name = document.getElementById('sellerName').value;
+            const shopName = document.getElementById('shopName').value;
+            const location = document.getElementById('sellerLocation').value;
+            const contactNumber = document.getElementById('contactNumber').value;
+
+            const response = await fetch(`${API_BASE}/auth/register/seller`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password, name, shopName, location, contactNumber }),
+            });
+
+            const data = await response.json();
+            responseDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        async function customerLogin() {
+            const email = document.getElementById('custLoginEmail').value;
+            const password = document.getElementById('custLoginPassword').value;
+
+            const response = await fetch(`${API_BASE}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password, role: 'customer' }),
+            });
+
+            const data = await response.json();
+            responseDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+            }
+        }
+
+        async function sellerLogin() {
+            const email = document.getElementById('sellerLoginEmail').value;
+            const password = document.getElementById('sellerLoginPassword').value;
+
+            const response = await fetch(`${API_BASE}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password, role: 'seller' }),
+            });
+
+            const data = await response.json();
+            responseDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+            }
+        }
+    </script>
+</body>
+</html>
